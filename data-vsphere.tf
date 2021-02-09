@@ -13,9 +13,9 @@ data vsphere_network "MAIN" {
   name          = local.network
 }
 
-data vsphere_resource_pool "MAIN" {
+data vsphere_compute_cluster "MAIN" {
   datacenter_id = data.vsphere_datacenter.MAIN.id
-  name          = local.resourcepool
+  name          = local.cluster
 }
 
 data vsphere_virtual_machine "TEMPLATE" {

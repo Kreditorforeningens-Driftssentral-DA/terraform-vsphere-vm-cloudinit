@@ -7,9 +7,9 @@ network:
     ens192:
       dhcp4: false
       addresses:
-        - ${ADDRESS}
+      - ${ADDRESS}
       gateway4: ${GATEWAY}
       nameservers:
         addresses:
-          - 1.1.1.1
-          - 8.8.8.8
+        - 1.1.1.1
+        - 8.8.8.8

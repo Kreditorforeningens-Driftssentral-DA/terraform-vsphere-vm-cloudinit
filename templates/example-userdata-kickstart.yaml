@@ -1,0 +1,63 @@
+#cloud-config
+---
+chpasswd:
+  list:
+  - ${USER}:${PASSWORD}
+  expire: false
+users:
+- default
+- name: ${USER}
+  gecos: ${USER}
+  lock_passwd: false
+  groups: sudo, users, admin
+  shell: /bin/bash
+  sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  #ssh_authorized_keys:
+  #- ssh-rsa xxx
+system_info: 
+  default_user:
+    name: ubuntu
+    lock_passwd: false
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+ssh_pwauth: false # Allow pwd to access ssh
+disable_root: true # Enable root ssh access
+random_seed:
+  file: /dev/urandom
+  command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+  command_required: true
+package_upgrade: true
+packages:
+- python3-pip
+write_files:
+- content: |
+    ---
+    network: {config: disabled}
+    ...
+  path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+  owner: root
+  permissions: '0644'
+- content: |
+    ---
+    network:
+      version: 2
+      ethernets:
+        ens192:
+          dhcp4: false
+          addresses:
+          - ${IP}/${NETMASK}
+          gateway4: ${GW}
+          nameservers:
+            addresses: ${DNS}
+    ...
+  path: /etc/netplan/99-kickstart-ens192.yaml
+  owner: root
+  permissions: '0644'
+runcmd:
+- netplan apply # Enable new network settings
+- echo "blacklist floppy" | sudo tee /etc/modprobe.d/blacklist-floppy.conf && sudo rmmod floppy && sudo update-initramfs -u # Remove floppy /dev/fd0 (delays boot)
+- curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sh - # Install vmware cloud-init datasource (guestinfo)
+- rm /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg && rm /etc/netplan/99-kickstart-ens192.yaml # Allow next cloud-init to manage network w/metadata
+power_state:
+  timeout: 15 # Seconds before rebooting, after cloud-init finishes
+  mode: reboot
+...

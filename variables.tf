@@ -22,18 +22,13 @@ variable network {
   type        = string
 }
 
-variable resourcepool {
-  description = "(Required) vSphere resourcepool"
+variable cluster {
+  description = "(Required) vSphere cluster"
   type        = string
 }
 
 variable template {
   description = "(Required) vSphere VM template; requires vmware cloud-init datasource installed (https://github.com/vmware/cloud-init-vmware-guestinfo)"
-  type        = string
-}
-
-variable userdata {
-  description = "(Required) Cloud-init userdata"
   type        = string
 }
 
@@ -58,18 +53,6 @@ variable folder {
   default     = ""
 }
 
-variable ip_address {
-  description = "(Optional) IP-address for the VM, including netmask"
-  type        = string
-  default     = "10.0.0.0/24"
-}
-
-variable gateway {
-  description = "(Optional) Gateway address for the VM"
-  type        = string
-  default     = "127.0.0.1"
-}
-
 variable cpus {
   description = "(Optional) Number of cpus to assign"
   type        = number
@@ -86,4 +69,34 @@ variable disk {
   description = "(Optional) Diskstorage to assign, in GiB"
   type        = number
   default     = 20
+}
+
+variable metadata {
+  description = "(Required) Cloud-init metadata, in plain text. Encoded & gzipped by module."
+  type        = string
+  default     = null
+}
+
+variable userdata {
+  description = "(Required) Cloud-init userdata, in plain text. Encoded & gzipped by module."
+  type        = string
+  default     = null
+}
+
+variable vapp_hostname {
+  description = "(Optional) vApp hostname"
+  type        = string
+  default     = null
+}
+
+variable vapp_password {
+  description = "(Optional) vApp password"
+  type        = string
+  default     = null
+}
+
+variable vapp_userdata {
+  description = "(Optional) vApp user-data in plain text. Encoded by module."
+  type        = string
+  default     = null
 }

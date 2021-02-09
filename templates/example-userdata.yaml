@@ -1,0 +1,41 @@
+#cloud-config 
+---
+timezone: ${TIMEZONE}
+users:
+- default
+- name: ${USERNAME}
+  gecos: ${USERNAME}
+  lock_passwd: false
+  groups: sudo, users, admin
+  shell: /bin/bash
+  sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  #ssh_authorized_keys:
+  #- ssh-rsa xxx
+system_info: 
+  default_user:
+    name: ubuntu
+    lock_passwd: false
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+chpasswd:
+  list:
+  - ${USERNAME}:${PASSWORD}
+  expire: false
+ssh_pwauth: false # Allow pwd to access ssh
+disable_root: true # Enable root ssh access
+random_seed:
+  file: /dev/urandom
+  command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+  command_required: true
+packages:
+- nfs-kernel-server
+write_files:
+- content: |
+    Congratulations! File created
+  path: /tmp/cloud-config-done.txt
+  owner: root
+  permissions: '0640'
+runcmd:
+- [ "mkdir", "-p", "/opt/example" ]
+- [ "echo", "Hello from runcmd", ">>", "/tmp/cloud-config-done.txt"]
+final_message: "$DATASOURCE: The system is up, after $UPTIME seconds!"
+...
