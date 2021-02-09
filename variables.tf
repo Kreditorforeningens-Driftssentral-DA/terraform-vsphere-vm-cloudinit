@@ -72,25 +72,13 @@ variable disk {
 }
 
 variable metadata {
-  description = "(Required) Cloud-init metadata, in plain text. Encoded & gzipped by module."
+  description = "(Optional) Cloud-init metadata, in plain text. Encoded & gzipped by module."
   type        = string
   default     = null
 }
 
 variable userdata {
-  description = "(Required) Cloud-init userdata, in plain text. Encoded & gzipped by module."
-  type        = string
-  default     = null
-}
-
-variable vapp_hostname {
-  description = "(Optional) vApp hostname"
-  type        = string
-  default     = null
-}
-
-variable vapp_password {
-  description = "(Optional) vApp password"
+  description = "(Optional) Cloud-init userdata, in plain text. Encoded & gzipped by module."
   type        = string
   default     = null
 }

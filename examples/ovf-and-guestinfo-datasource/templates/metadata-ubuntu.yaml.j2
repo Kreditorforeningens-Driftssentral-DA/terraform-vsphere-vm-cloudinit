@@ -11,5 +11,6 @@ network:
       gateway4: ${GATEWAY}
       nameservers:
         addresses:
-        - 1.1.1.1
-        - 8.8.8.8
+        %{~ for addr in DNS ~}
+        - ${addr}
+        %{~ endfor ~}

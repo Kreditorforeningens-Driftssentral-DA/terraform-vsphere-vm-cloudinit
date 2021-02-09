@@ -1,0 +1,68 @@
+#cloud-config
+---
+system_info: 
+  default_user:
+    name: ubuntu
+    gecos: Ubuntu user
+    shell: /bin/bash
+    plain_text_passwd: ubuntu
+    lock_passwd: false  # Allow local login
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+users:
+- default
+- name: ${USERNAME}
+  gecos: ${USERNAME}
+  shell: /bin/bash
+  lock_passwd: true # Only login via ssh
+  groups: [sudo, users, admin]
+  sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC6btfhwueBbqC9fCxNfOELSFulHIBNDEps8Fp7MMKH7WtUINInznB6uGIGLgYh0Xr/55jG0v5t4vsCf5ODw28ohZOEWo3ZYvApEPLvacRszRsZxm1lA6kHLvwTD60DnrWNcxlU/aW0QKaUPLrdxCBLD92/hBKWBVkjfF3TtdDLTPv8NNrkyhdw7xmmt2re4tyBmzpBs9mEdK4Zq71bvN9oFvmw39pUMzvppiuTT62oZONMCDTyPvabkJGgS/04xujqtzfoT8jOPwMvPHs4H5qpLaDpl6VK5+w3CQjw6I/f7qBQk8deKv8lyLMmAFdtufkxqFMheXShux8+QTgZ0izw6ajNmIAhZBrUa61ic9E36UDRvsfaTD2FjT0k/ENNytrRf8W0VCDS1K+TMS7QxHmVGBgdvIuOflfA90qnxX7+ArNGOvRmcMKuzNjMsiZzoqJECaVtKcPxqdvG5OxiOs/V+mz92Oy+yOUKFCQ+TRPlUomfIvopXpXN3Krob74T7Euw0ujFxCxag6+ImeFhbOi5Ozq+p7qrMLm0Eci9AZqqGbHoOgh7D4I3y6UBxUBpBvuiXPVfSz0OwOdLbrZOIF0CA1M+2pjPv6XoGpezigcLHd5RANDB05r3A2Tb+Did+r/MOfBQKjU4xgIN3iP4ovzrcqEI0jte9F6KXr9t3QOfEQ==
+chpasswd:
+  list:
+  - ${USERNAME}:${PASSWORD}
+  expire: false
+ssh_pwauth: false # Allow pwd to access ssh
+disable_root: true # root ssh access disabled
+random_seed:
+  file: /dev/urandom
+  command: ["pollinate", "-r", "-s", "https://entropy.ubuntu.com"]
+  command_required: true
+write_files:
+- content: |
+    ---
+    network: {config: disabled}
+    ...
+  path: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+  owner: root
+  permissions: '0644'
+- content: |
+    ---
+    network:
+      version: 2
+      ethernets:
+        ens192:
+          dhcp4: false
+          addresses:
+          - ${ADDRESS}
+          gateway4: ${GATEWAY}
+          nameservers:
+            addresses:
+            %{~ for addr in DNS ~}
+            - ${addr}
+            %{~ endfor ~}
+    ...
+  path: /etc/netplan/99-kickstart-ens192.yaml
+  owner: root
+  permissions: '0644'
+runcmd:
+- netplan apply # Enable new network settings
+- echo "blacklist floppy" | sudo tee /etc/modprobe.d/blacklist-floppy.conf && sudo rmmod floppy && sudo update-initramfs -u # Remove floppy /dev/fd0 (delays boot)
+- apt-update && apt-get install -qqy python3-pip && apt-get -qqy clean
+- curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh | sh - # Install vmware cloud-init datasource (guestinfo)
+- rm /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg && rm /etc/netplan/99-kickstart-ens192.yaml # Allow next cloud-init to manage network w/metadata
+- passwd -d root
+power_state:
+  timeout: 15 # Seconds before rebooting, after cloud-init finishes
+  mode: reboot
+...

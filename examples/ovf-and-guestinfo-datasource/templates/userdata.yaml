@@ -1,0 +1,15 @@
+#cloud-config 
+---
+timezone: Europe/Oslo
+locale: nb_NO
+write_files:
+- content: |
+    Congratulations! File created
+  path: /tmp/cloud-config-done.txt
+  owner: root
+  permissions: '0640'
+runcmd:
+- [ "mkdir", "-p", "/opt/example" ]
+- [ "echo", "'Hello from runcmd'", ">>", "/tmp/cloud-config-done.txt"]
+final_message: "$DATASOURCE: The system is up, after $UPTIME seconds!"
+...

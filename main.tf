@@ -9,12 +9,10 @@ resource vsphere_virtual_machine "VM" {
   num_cpus   = local.cpus
 
   # CLOUDINIT DATA FOR OVF DATASOURCE
-  # TODO: Add optional bootstrapping ovf
   vapp {
     properties = {
-      hostname  = local.vapp_hostname
-      password  = local.vapp_password
-      user-data = base64encode(local.vapp_userdata)
+      hostname  = "id-ovf"
+      user-data = local.vapp_userdata != null ? base64encode(local.vapp_userdata) : ""
     }
   }
 
@@ -22,8 +20,8 @@ resource vsphere_virtual_machine "VM" {
   extra_config = {
     "guestinfo.metadata.encoding" = "gzip+base64"
     "guestinfo.userdata.encoding" = "gzip+base64"
-    "guestinfo.metadata"          = base64gzip(local.metadata)
-    "guestinfo.userdata"          = base64gzip(local.userdata)
+    "guestinfo.metadata"          = local.metadata != null ? base64gzip(local.metadata) : ""
+    "guestinfo.userdata"          = local.userdata != null ? base64gzip(local.userdata) : ""
   }
 
   disk {
@@ -52,6 +50,6 @@ resource vsphere_virtual_machine "VM" {
   firmware         = data.vsphere_virtual_machine.TEMPLATE.firmware
   scsi_type        = data.vsphere_virtual_machine.TEMPLATE.scsi_type
   guest_id         = data.vsphere_virtual_machine.TEMPLATE.guest_id
-  resource_pool_id = data.vsphere_compute_cluster.MAIN.id
+  resource_pool_id = data.vsphere_compute_cluster.MAIN.resource_pool_id
   datastore_id     = data.vsphere_datastore.MAIN.id
 }
