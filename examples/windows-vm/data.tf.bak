@@ -1,0 +1,57 @@
+# When each VM has different config, we also use for_each here (same key)
+data null_data_source "METADATA_WINDOWS" {
+  for_each = local.vm_list_windows
+  inputs = {
+    windows = <<-EOH
+    instance-id: cloudbase-${each.value.name}
+    local-hostname: ${each.value.name}
+    admin-username: ${each.value.username}
+    admin-password: ${each.value.password}
+    EOH
+  }
+}
+
+# When each VM has different config, we also use for_each here (same key)
+data cloudinit_config "USERDATA_WINDOWS" {
+  for_each = local.vm_list_windows
+  # --
+  gzip          = false
+  base64_encode = false
+
+  part {
+    content_type = "text/cloud-config"
+    filename     = "init.cfg"
+    content      = <<-EOH
+    set_hostname: ${each.value.name}
+    set_timezone: Europe/Oslo
+    groups:
+    - CloudBase
+    users:
+    - name: ${each.value.username}
+      gecos: Example user
+      primary_group: Users
+      groups: CloudBase
+      passwd: ${each.value.password}
+      inactive: False
+    write_files:
+    - content: |
+        Congratulations!
+      path: C:\done.txt
+      permissions: '0644'
+    runcmd:
+    - ['date /t', '>>', 'C:\done.txt']
+    EOH
+  }
+  
+  # Configure static ip
+  part {
+    content_type = "text/x-shellscript"
+    filename     = "set-ip.ps1"
+    content      = <<-EOH
+    #ps1_sysnative
+    $adapter = Get-NetAdapter | ?{$_.Status -eq "up"} # Ethernet0
+    $adapter | New-NetIPAddress -AddressFamily IPv4 -IPAddress ${each.value.address} -PrefixLength ${each.value.netmask} -DefaultGateway ${each.value.gateway}
+    $adapter | Set-DnsClientServerAddress -ServerAddresses ${each.value.dns}
+    EOH
+  }
+}

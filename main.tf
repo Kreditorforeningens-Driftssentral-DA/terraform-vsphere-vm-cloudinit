@@ -5,14 +5,17 @@ resource vsphere_virtual_machine "VM" {
   annotation = local.annotation
   folder     = local.folder
 
+  boot_delay                 = 2500
+  wait_for_guest_net_timeout = 0
+
   memory     = local.memory
   num_cpus   = local.cpus
 
   # CLOUDINIT DATA FOR OVF DATASOURCE
-  vapp {
-    properties = {
-      hostname  = "id-ovf"
-      user-data = local.vapp_userdata != null ? base64encode(local.vapp_userdata) : ""
+  dynamic "vapp" {
+    for_each = local.vapp_properties != null ? [local.vapp_properties] : []
+    content {
+      properties = vapp.value
     }
   }
 
@@ -43,9 +46,6 @@ resource vsphere_virtual_machine "VM" {
   clone {
     template_uuid = data.vsphere_virtual_machine.TEMPLATE.id
   }
-
-  boot_delay                 = 2500
-  wait_for_guest_net_timeout = 0
 
   firmware         = data.vsphere_virtual_machine.TEMPLATE.firmware
   scsi_type        = data.vsphere_virtual_machine.TEMPLATE.scsi_type

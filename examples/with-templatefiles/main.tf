@@ -10,21 +10,6 @@ terraform {
 locals {
   vm_list = {
     vm1 = var.vm1
-    /*
-    vm2 = {
-      name          = "vm2"
-      datacenter    = "yadi-0"
-      datastore     = "yadi-1"
-      network       = "yadi-2"
-      cluster       = "VMC1"
-      template      = "ubuntu-focal-20.04-cloudimg"
-      username      = "yadi"
-      password      = "yadi!!"
-      address       = "192.168.10.200/24"
-      gateway       = "192.168.10.1"
-      dns           = ["1.1.1.1", "8.8.8.8"]
-    }
-    */
   }
 }
 
@@ -43,7 +28,10 @@ module "VM" {
   cluster    = each.value.cluster
   template   = each.value.template
   # OVF datasource
-  vapp_userdata = data.cloudinit_config.KICKSTART_USERDATA[each.key].rendered
+  vapp_properties = {
+    hostname  = "id-ovf"
+    user-data = data.cloudinit_config.KICKSTART_USERDATA[each.key].rendered
+  }
   # VMware GuestInfo datasource
   metadata = data.null_data_source.METADATA[each.key].outputs["ubuntu"]
   userdata = data.cloudinit_config.USERDATA.rendered

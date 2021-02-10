@@ -11,5 +11,7 @@ override.tf.json
 
 *.lock.*
 
+LOCALTEST/
+localtest.hcl
 # Crash log files
 crash.log

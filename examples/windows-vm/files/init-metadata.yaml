@@ -1,0 +1,4 @@
+instance-id: id-${HOSTNAME}
+local-hostname: ${HOSTNAME}
+admin-username: LocalAdmin
+admin-password: S3cr3tW0rd!

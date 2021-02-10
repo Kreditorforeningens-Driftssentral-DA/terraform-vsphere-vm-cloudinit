@@ -1,0 +1,22 @@
+#cloud-config 
+---
+set_hostname: ${HOSTNAME}
+set_timezone: Europe/Oslo
+groups:
+- CloudBase
+users:
+- name: ${USERNAME}
+  gecos: Example user
+  primary_group: Users
+  groups: CloudBase
+  passwd: ${PASSWORD}
+  inactive: False
+write_files:
+- content: |
+    Congratulations!
+  path: C:\done.txt
+  permissions: '0644'
+runcmd:
+#- ['New-EventLog', '–LogName', 'Application', '–Source', 'CloudBase-Info']
+- ['echo', 'CloudBase StartTime: ${timestamp()} (UTC)', '>>', 'C:\done.txt']
+- ['date /t', '>>', 'C:\done.txt']

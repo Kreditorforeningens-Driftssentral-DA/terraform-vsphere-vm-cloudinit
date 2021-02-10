@@ -71,6 +71,17 @@ variable disk {
   default     = 20
 }
 
+#variable vapp_userdata {
+#  description = "(Optional) vApp user-data in plain text. Encoded by module."
+#  type        = string
+#  default     = null
+#}
+
+variable vapp_properties {
+  type    = map(string)
+  default = null # use "hostname" & "user-data" for ovf-datasource
+}
+
 variable metadata {
   description = "(Optional) Cloud-init metadata, in plain text. Encoded & gzipped by module."
   type        = string
@@ -79,12 +90,6 @@ variable metadata {
 
 variable userdata {
   description = "(Optional) Cloud-init userdata, in plain text. Encoded & gzipped by module."
-  type        = string
-  default     = null
-}
-
-variable vapp_userdata {
-  description = "(Optional) vApp user-data in plain text. Encoded by module."
   type        = string
   default     = null
 }
