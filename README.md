@@ -1,19 +1,25 @@
 # VSPHERE CLOUD-INIT
-> Using cloud-init , you can deploy both Windows & Linux machines using the same terraform module (and workflow).
 
-  * Linux template requires Cloud-Init (OVF/GuestInfo datasource(s) enabled)
-  * Windows template requires the CloudBase-Init (OVF/GuestInfo datasource(s) enabled)
+## LINKS
+  * [Terraform Registruy](https://registry.terraform.io/modules/Kreditorforeningens-Driftssentral-DA/vm-cloudinit/vsphere/latest)
+  * [GitHub Repository](https://github.com/Kreditorforeningens-Driftssentral-DA/terraform-vsphere-vm-cloudinit)
 
 ## DESCRIPTION
 This Terraform module deploys a virtual machine (or multiple, using 'for_each'), with following limitations:
 
-  * Deploys from pre-created vSphere template.
+**HIGHLIGHTS**
+> Using cloud-init , you can deploy both Windows & Linux machines using the same terraform module (and workflow).
+>  * Linux template requires Cloud-Init (OVF/GuestInfo datasource(s) enabled)
+>  * Windows template requires the CloudBase-Init (OVF/GuestInfo datasource(s) enabled)
+
+**LIMITATIONS**
+  * Requires pre-created vSphere template.
   * Single HDD supported (will add support for more if anyone requests it).
   * Single NIC supported (will add support for more if anyone requests it).
-  * Not ALL fields supports customization (will add support for more if anyone requests it).
+  * Not ALL fields supported for customization (will add support for more if anyone requests it).
 
 ## EXAMPLES
-See the 'examples' directory in the repo
+See the [examples folder](examples/) in this repo.
 
 ```bash
 # LINUX
